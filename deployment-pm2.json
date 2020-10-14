@@ -1,0 +1,9 @@
+{
+    "apps": [
+        {
+            "name": "verisig-designstudio",
+            "script": "npm run -- startcpsvo"
+
+        }
+    ]
+}
