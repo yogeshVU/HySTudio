@@ -64,8 +64,8 @@ define([
         self._path = require('path');
         self._zip = require('zip-folder');
         self._rimraf = require('rimraf');
-        // self._basedir = self._path.join(process.cwd(), 'work_temp');
-        self._basedir = '/webgmeshare/work_temp';
+        self._basedir = self._path.join(process.cwd(), 'work_temp');
+        // self._basedir = '/webgmeshare/work_temp';
         self._name = self.core.getAttribute(self.activeNode, 'name');
         self._streams = {};
 
@@ -123,8 +123,9 @@ define([
                     Cmd: ['node', self._path.join(self._path.join('/webgmedata', self._dirname), 'execute.js')],
                     WorkingDir: self._config.workingDir,
                     HostConfig: {
+
                         Binds: [
-                            'hysteditor_work:/webgmedata'
+                            self._basedir +':/webgmedata'
                         ]
                     }
                 });
@@ -218,9 +219,9 @@ define([
         var commands = commandArray.join(' *** '),
             keys = Object.keys(this._config.userOptions || {});
 
-        keys.forEach(function (option) {
-            commands = commands.replace(new RegExp('\\\$' + option, 'g'), this._config.userOptions[option]);
-        });
+        // keys.forEach(function (option) {
+        //     commands = commands.replace(new RegExp('\\\$' + option, 'g'), this._config.userOptions[option]);
+        // });
 
         // keys: $name are predefined
         commands = commands.replace(new RegExp('\\\$name', 'g'), this._name);
@@ -245,6 +246,46 @@ define([
                     self._path.join(process.cwd(), 'src/utils/runToolInDocker.js'),
                     self._path.join(self._workdir, 'execute.js')
                 );
+            })
+            .then(function () {
+                if (self._config.userOptions['dnnConfigFile']||[] != []){
+                    return self._getFile(self._config.userOptions['dnnConfigFile'])
+                }
+                return null;
+
+            })
+            .then(function (fileContent) {
+                if (fileContent!=null){
+                return Q.ninvoke(
+                    self._fs,
+                    'writeFile',
+                    self._path.join(self._workdir, self._name + '.yaml'),
+                    fileContent,
+                    'utf8'
+                );
+                }
+                return null;
+
+            })
+             .then(function () {
+                if (self._config.userOptions['verisigConfigFile']||[] != []){
+                    return self._getFile(self._config.userOptions['verisigConfigFile'])
+                }
+                return null;
+
+            })
+            .then(function (fileContent) {
+                if (fileContent!=null){
+                return Q.ninvoke(
+                    self._fs,
+                    'writeFile',
+                    self._path.join(self._workdir, self._name + 'V.yaml'),
+                    fileContent,
+                    'utf8'
+                );
+                }
+                return null;
+
             })
             .then(function () {
                 if (self._config.noConversion) {
@@ -343,6 +384,21 @@ define([
             .catch(deferred.reject);
         return deferred.promise;
     };
+
+    DockerAnalysisExecuter.prototype._getFile = function(filehash){
+        var confighashfile = filehash,
+            deferred = Q.defer(),
+            self = this
+        ;
+
+        self.blobClient.getObjectAsString(confighashfile).then(
+            function (filecontent) {
+                console.log(filecontent)
+                deferred.resolve(filecontent);
+            }
+        )
+       return deferred.promise;
+    }
 
     DockerAnalysisExecuter.prototype._getConfig = function () {
         var self = this,

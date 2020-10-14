@@ -54,6 +54,45 @@
     ],
     "outputFormat": "archive"
   },
+  "Verisig": {
+    "description": "Verisig Neural Network Verification",
+    "noConversion": true,
+    "useConfig": true,
+
+    "dockerImage": "yogeshvu/verisig:0.1.0",
+    "workingDir": "/usr/app/verisig/verisig-master",
+    "commands": [
+      "./verisig --flowstar-cmd=./flowstar/flowstar -sc $dir/$name.cfg -vc $dir/$nameV.yaml $dir/$name.xml $dir/$name.yaml",
+      "echo \"set terminal svg\" > $wdir/outputs/out.svg.plt",
+      "echo \"set output './images/out.svg'\" >> $wdir/outputs/out.svg.plt",
+      "tail -n+3 $wdir/outputs/autosig.plt >> $wdir/outputs/out.svg.plt",
+      "gnuplot -c $wdir/outputs/out.svg.plt",
+      "cp ./outputs/* $dir",
+      "cp ./images/* $dir"
+    ],
+    "outputFormat": {
+      "figures": [
+        "out.svg"
+      ]
+    },
+    "userOptions": [
+
+      {
+        "name": "dnnConfigFile",
+        "displayName": "File containing the DNN configuration in YAML",
+        "description": "File asset having the DNN configuration. ",
+        "valueType": "asset",
+        "readOnly": false
+      },
+      {
+        "name": "verisigConfigFile",
+        "displayName": "File containing the Verisig configuration in YAML",
+        "description": "File asset having the Verisig configuration. ",
+        "valueType": "asset",
+        "readOnly": false
+      }
+    ]
+  },
   "anotherOne": {
     "description": "just testing the config",
     "userOptions": [
