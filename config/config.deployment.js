@@ -38,7 +38,7 @@ config.seedProjects.basePaths = ["./seeds"]
 config.visualization.svgDirs.push("./icons/svg");
 
 config.seedProjects.basePaths = [__dirname + '/../src/seeds/HySTBase'];
-config.mongo.uri = 'mongodb://mongo:27017/hysteditor-docker';
+//config.mongo.uri = 'mongodb://mongo:27017/hysteditor-docker';
 
 config.server.port = 8080;
 
